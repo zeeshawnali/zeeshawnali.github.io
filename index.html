@@ -3,76 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkbox Counter</title>
+  <title>Audrey's Checkmark Counter</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 16px;
-      max-width: 600px;
-      margin: 0 auto;
+    :root {
+      --neon-blue: #0a84ff; /* Apple-style neon blue */
+      --bg: #f5f9ff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
     }
-    h2 {
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      padding: 16px;
+      background: linear-gradient(180deg, #eef6ff, #ffffff);
+      max-width: 640px;
+      margin: 0 auto;
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(10, 132, 255, 0.12);
+      border: 1px solid rgba(10, 132, 255, 0.15);
+    }
+
+    h1 {
       text-align: center;
+      margin: 0 0 6px;
+      font-size: 1.4rem;
+      color: var(--neon-blue);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
       margin-bottom: 12px;
     }
+
     textarea {
       width: 100%;
       font-size: 16px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(10, 132, 255, 0.25);
       box-sizing: border-box;
+      outline: none;
+      transition: 0.15s ease;
     }
+
+    textarea:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    }
+
     .buttons {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
+
     button {
       flex: 1;
-      padding: 10px;
+      padding: 11px;
       font-size: 15px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      background: #2563eb;
+      background: var(--neon-blue);
       color: white;
+      font-weight: 600;
+      transition: 0.15s ease;
     }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(10, 132, 255, 0.25);
+    }
+
     button.clear {
-      background: #6b7280;
+      background: #94a3b8;
     }
+
     .count-box {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 12px;
-      background: #f3f4f6;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #e6f2ff, #f0f8ff);
+      border: 1px solid rgba(10, 132, 255, 0.2);
       text-align: center;
     }
+
     .label {
       font-size: 14px;
-      color: #555;
+      color: var(--muted);
       margin-bottom: 6px;
     }
+
     .count {
-      font-size: 42px;
-      font-weight: bold;
-      color: #111827;
+      font-size: 46px;
+      font-weight: 800;
+      color: var(--neon-blue);
+    }
+
+    .footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
     }
   </style>
 </head>
 <body>
-  <h2>☑️ Checkbox Counter</h2>
+  <div class="card">
+    <h1>Audrey's Checkmark Counter 💙🥰</h1>
+    <div class="subtitle">Paste your text and count ☑️ icons</div>
 
-  <textarea id="textInput" rows="10" placeholder="Paste text here..."></textarea>
+    <textarea id="textInput" rows="10" placeholder="Paste text here..."></textarea>
 
-  <div class="buttons">
-    <button id="pasteBtn">Paste</button>
-    <button id="clearBtn" class="clear">Clear</button>
-  </div>
+    <div class="buttons">
+      <button id="pasteBtn">Paste 💙</button>
+      <button id="clearBtn" class="clear">Clear ❣️</button>
+    </div>
 
-  <div class="count-box">
-    <div class="label">Total ☑️ icons</div>
-    <div class="count" id="count">0</div>
+    <div class="count-box">
+      <div class="label">Total ☑️ checkmarks</div>
+      <div class="count" id="count">0</div>
+    </div>
+
+    <div class="footer">Made with 💙 and 🥰 for Audrey</div>
   </div>
 
   <script>
@@ -97,7 +160,7 @@
         textarea.value = text;
         updateCount();
       } catch (e) {
-        alert('Paste not allowed by your browser. Use Ctrl+V / long-press instead.');
+        alert('Paste not allowed by your browser. Use Ctrl+V or long-press instead.');
       }
     });
 
