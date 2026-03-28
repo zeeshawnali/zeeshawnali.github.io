@@ -1,174 +1,852 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audrey's Checkmark Counter</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Inventory</title>
   <style>
     :root {
-      --neon-blue: #0a84ff; /* Apple-style neon blue */
-      --bg: #f5f9ff;
+      --bg: #f5f7fb;
       --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #111827;
+      --primary-text: #ffffff;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --error-bg: #fef2f2;
+      --error-text: #991b1b;
+      --available-bg: #ecfdf5;
+      --available-text: #065f46;
+      --checkedout-bg: #fffbeb;
+      --checkedout-text: #92400e;
+      --maintenance-bg: #eff6ff;
+      --maintenance-text: #1d4ed8;
+      --lost-bg: #fef2f2;
+      --lost-text: #991b1b;
+      --retired-bg: #f3f4f6;
+      --retired-text: #4b5563;
+      --radius: 18px;
+      --shadow: 0 8px 24px rgba(0,0,0,0.05);
     }
 
+    * { box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      padding: 16px;
-      background: linear-gradient(180deg, #eef6ff, #ffffff);
-      max-width: 640px;
-      margin: 0 auto;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
       color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .button {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: 0.15s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+
+    .button.primary {
+      background: var(--primary);
+      color: var(--primary-text);
+      border-color: var(--primary);
+    }
+
+    .button.secondary {
+      background: #f3f4f6;
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
     }
 
     .card {
       background: var(--card);
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(10, 132, 255, 0.12);
-      border: 1px solid rgba(10, 132, 255, 0.15);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    h1 {
-      text-align: center;
-      margin: 0 0 6px;
-      font-size: 1.4rem;
-      color: var(--neon-blue);
-      font-weight: 700;
+    .card-header {
+      padding: 18px 20px 0;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-bottom: 12px;
+    .card-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 650;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-weight: 550;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
     }
 
     textarea {
-      width: 100%;
-      font-size: 16px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(10, 132, 255, 0.25);
-      box-sizing: border-box;
-      outline: none;
-      transition: 0.15s ease;
+      resize: vertical;
+      min-height: 90px;
     }
 
-    textarea:focus {
-      border-color: var(--neon-blue);
-      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+    .small {
+      font-size: 0.85rem;
+      color: var(--muted);
     }
 
-    .buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    button {
-      flex: 1;
-      padding: 11px;
-      font-size: 15px;
+    .pill {
+      display: inline-flex;
+      align-items: center;
       border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: var(--neon-blue);
-      color: white;
-      font-weight: 600;
-      transition: 0.15s ease;
+      padding: 7px 10px;
+      font-size: 0.82rem;
+      font-weight: 650;
+      border: 1px solid transparent;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(10, 132, 255, 0.25);
-    }
+    .status-available { background: var(--available-bg); color: var(--available-text); }
+    .status-checked-out { background: var(--checkedout-bg); color: var(--checkedout-text); }
+    .status-maintenance { background: var(--maintenance-bg); color: var(--maintenance-text); }
+    .status-lost { background: var(--lost-bg); color: var(--lost-text); }
+    .status-retired { background: var(--retired-bg); color: var(--retired-text); }
+    .status-unknown { background: #f9fafb; color: #374151; }
 
-    button.clear {
-      background: #94a3b8;
-    }
-
-    .count-box {
-      margin-top: 16px;
-      padding: 16px;
+    .alert {
       border-radius: 14px;
-      background: linear-gradient(135deg, #e6f2ff, #f0f8ff);
-      border: 1px solid rgba(10, 132, 255, 0.2);
-      text-align: center;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
     }
 
-    .label {
-      font-size: 14px;
+    .alert.error {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border-color: #fecaca;
+    }
+
+    .alert.success {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border-color: #a7f3d0;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .detail-box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--muted);
       margin-bottom: 6px;
     }
 
-    .count {
-      font-size: 46px;
-      font-weight: 800;
-      color: var(--neon-blue);
+    .detail-value {
+      font-size: 0.95rem;
+      font-weight: 550;
+      word-break: break-word;
     }
 
-    .footer {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 0.85rem;
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-button {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    .tab-button.active {
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .item-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fff;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .item-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .item-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .item-title {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 650;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .empty-state {
+      padding: 28px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
       color: var(--muted);
+      text-align: center;
+      background: #fff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .inventory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 16px; }
+      .detail-grid, .row, .inventory-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Audrey's Checkmark Counter 💙🥰</h1>
-    <div class="subtitle">Paste your text and count ☑️ icons</div>
-
-    <textarea id="textInput" rows="10" placeholder="Paste text here..."></textarea>
-
-    <div class="buttons">
-      <button id="pasteBtn">Paste 💙</button>
-      <button id="clearBtn" class="clear">Clear ❣️</button>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Photo Inventory</h1>
+        <div class="subtitle">Simple HTML + JavaScript front end for your Google Sheets inventory system.</div>
+      </div>
+      <button class="button" id="refreshInventoryBtn">Refresh Inventory</button>
     </div>
 
-    <div class="count-box">
-      <div class="label">Total ☑️ checkmarks</div>
-      <div class="count" id="count">0</div>
-    </div>
+    <div id="messageArea"></div>
 
-    <div class="footer">Made with 💙 and 🥰 for Audrey</div>
+    <div class="grid">
+      <div class="stack">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Find Equipment</h2>
+          </div>
+          <div class="card-body">
+            <form id="searchForm" class="stack">
+              <div>
+                <label for="equipmentIdInput">Equipment ID</label>
+                <input id="equipmentIdInput" placeholder="CAM-001" />
+              </div>
+              <button class="button primary" type="submit" id="loadItemBtn">Load Item</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">System Status</h2>
+          </div>
+          <div class="card-body stack">
+            <div>
+              <div class="small">API Health</div>
+              <div id="healthStatus" class="pill status-unknown" style="margin-top: 8px;">Unknown</div>
+            </div>
+            <div>
+              <div class="small">Version</div>
+              <div id="healthVersion">—</div>
+            </div>
+            <div>
+              <div class="small">Last Check</div>
+              <div id="healthTimestamp">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Inventory Count</h2>
+          </div>
+          <div class="card-body">
+            <div style="font-size: 1.8rem; font-weight: 700;" id="inventoryCount">0</div>
+            <div class="small" style="margin-top: 6px;">Active items loaded from Google Sheets</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Selected Equipment</h2>
+          </div>
+          <div class="card-body">
+            <div id="selectedItemEmpty" class="empty-state">
+              Search by equipment ID, or open this page with a QR-style URL such as
+              <span class="mono">?equipment_id=CAM-001</span>
+            </div>
+
+            <div id="selectedItemView" style="display: none;">
+              <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+                <div>
+                  <h2 id="itemName" style="margin:0; font-size:1.6rem;"></h2>
+                  <div id="itemDescription" class="subtitle" style="margin-top:8px;"></div>
+                </div>
+                <div id="itemStatusBadge" class="pill status-unknown">Unknown</div>
+              </div>
+
+              <div class="detail-grid">
+                <div class="detail-box"><div class="detail-label">Equipment ID</div><div class="detail-value" id="detailEquipmentId">—</div></div>
+                <div class="detail-box"><div class="detail-label">Asset Tag</div><div class="detail-value" id="detailAssetTag">—</div></div>
+                <div class="detail-box"><div class="detail-label">Category</div><div class="detail-value" id="detailCategory">—</div></div>
+                <div class="detail-box"><div class="detail-label">Brand</div><div class="detail-value" id="detailBrand">—</div></div>
+                <div class="detail-box"><div class="detail-label">Model</div><div class="detail-value" id="detailModel">—</div></div>
+                <div class="detail-box"><div class="detail-label">Serial Number</div><div class="detail-value" id="detailSerial">—</div></div>
+                <div class="detail-box"><div class="detail-label">Current Holder</div><div class="detail-value" id="detailHolder">—</div></div>
+                <div class="detail-box"><div class="detail-label">Location</div><div class="detail-value" id="detailLocation">—</div></div>
+                <div class="detail-box"><div class="detail-label">Condition</div><div class="detail-value" id="detailCondition">—</div></div>
+              </div>
+
+              <div class="tabs">
+                <button class="tab-button active" data-tab="checkoutPanel">Check Out</button>
+                <button class="tab-button" data-tab="checkinPanel">Check In</button>
+                <button class="tab-button" data-tab="notesPanel">Notes</button>
+              </div>
+
+              <div id="checkoutPanel" class="tab-panel active">
+                <div class="stack">
+                  <div id="checkoutUnavailable" class="small" style="display:none;">This item cannot be checked out right now.</div>
+                  <div id="checkoutFormWrap">
+                    <div class="row">
+                      <div>
+                        <label for="checkoutUserId">User ID</label>
+                        <input id="checkoutUserId" placeholder="USR-001" />
+                      </div>
+                      <div>
+                        <label for="checkoutApprovedBy">Approved By</label>
+                        <input id="checkoutApprovedBy" placeholder="Lu" />
+                      </div>
+                      <div>
+                        <label for="checkoutProjectName">Project Name</label>
+                        <input id="checkoutProjectName" placeholder="TIFF Red Carpet" />
+                      </div>
+                      <div>
+                        <label for="checkoutDueDate">Due Date</label>
+                        <input id="checkoutDueDate" type="date" />
+                      </div>
+                      <div>
+                        <label for="checkoutLocation">Location</label>
+                        <input id="checkoutLocation" value="With User" />
+                      </div>
+                      <div>
+                        <label for="checkoutCondition">Condition</label>
+                        <input id="checkoutCondition" value="Good" />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="checkoutNotes">Notes</label>
+                      <textarea id="checkoutNotes" placeholder="Sent with charger and 2 batteries"></textarea>
+                    </div>
+                    <button class="button primary" id="checkoutBtn">Check Out Item</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="checkinPanel" class="tab-panel">
+                <div class="stack">
+                  <div id="checkinUnavailable" class="small" style="display:none;">This item cannot be checked in right now.</div>
+                  <div id="checkinFormWrap">
+                    <div class="row">
+                      <div>
+                        <label for="checkinUserId">User ID</label>
+                        <input id="checkinUserId" placeholder="USR-001" />
+                      </div>
+                      <div>
+                        <label for="checkinApprovedBy">Approved By</label>
+                        <input id="checkinApprovedBy" placeholder="Lu" />
+                      </div>
+                      <div>
+                        <label for="checkinLocation">Return Location</label>
+                        <input id="checkinLocation" value="Studio" />
+                      </div>
+                      <div>
+                        <label for="checkinCondition">Condition</label>
+                        <input id="checkinCondition" value="Good" />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="checkinNotes">Notes</label>
+                      <textarea id="checkinNotes" placeholder="Returned complete"></textarea>
+                    </div>
+                    <button class="button secondary" id="checkinBtn">Check In Item</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="notesPanel" class="tab-panel">
+                <div class="stack">
+                  <div><strong>Notes:</strong> <span id="itemNotes">—</span></div>
+                  <div><strong>QR URL:</strong> <span id="itemQrUrl">—</span></div>
+                  <div><strong>Current Holder:</strong> <span id="itemHolderText">—</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Inventory Snapshot</h2>
+          </div>
+          <div class="card-body">
+            <div id="inventoryGrid" class="inventory-grid"></div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Next steps after this page works: user login, role permissions, transaction history, and QR code generation for each item.
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const textarea = document.getElementById('textInput');
-    const countEl = document.getElementById('count');
-    const pasteBtn = document.getElementById('pasteBtn');
-    const clearBtn = document.getElementById('clearBtn');
+    /*
+      Photo Inventory Front End (Simple HTML/JS)
+      Version: 0.1.0
 
-    // Count ONLY ☑️ and ☑
-    const regex = /(☑️|\u2611)/g;
+      What you need to do first:
+      1. Paste your deployed Google Apps Script URL into APPS_SCRIPT_URL.
+      2. Make sure your Apps Script backend is already working.
+      3. Make sure your sheet has at least one real item and one real user.
 
-    function updateCount() {
-      const matches = textarea.value.match(regex);
-      countEl.textContent = matches ? matches.length : 0;
+      Example test URL after hosting this page:
+      index.html?equipment_id=CAM-001
+    */
+
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQBHAXLvYtIYr69kjzYKTuh32_tKAfMRcWInjig4-ddsdA1mMe7VYQf8wcagdzin85/exec';
+
+    let selectedItem = null;
+    let inventoryItems = [];
+
+    function buildGetUrl(action, params = {}) {
+      const url = new URL(APPS_SCRIPT_URL);
+      url.searchParams.set('action', action);
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && String(value) !== '') {
+          url.searchParams.set(key, value);
+        }
+      });
+
+      return url.toString();
     }
 
-    textarea.addEventListener('input', updateCount);
-
-    pasteBtn.addEventListener('click', async () => {
-      try {
-        const text = await navigator.clipboard.readText();
-        textarea.value = text;
-        updateCount();
-      } catch (e) {
-        alert('Paste not allowed by your browser. Use Ctrl+V or long-press instead.');
+    async function apiGet(action, params = {}) {
+      const response = await fetch(buildGetUrl(action, params));
+      if (!response.ok) {
+        throw new Error(`GET request failed with status ${response.status}`);
       }
-    });
+      return response.json();
+    }
 
-    clearBtn.addEventListener('click', () => {
-      textarea.value = '';
-      updateCount();
-      textarea.focus();
-    });
+    async function apiPost(payload) {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`POST request failed with status ${response.status}`);
+      }
+
+      return response.json();
+    }
+
+    function getEquipmentIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('equipment_id') || '';
+    }
+
+    function showMessage(text, type = 'success') {
+      const area = document.getElementById('messageArea');
+      if (!text) {
+        area.innerHTML = '';
+        return;
+      }
+      area.innerHTML = `<div class="alert ${type}">${escapeHtml(text)}</div>`;
+    }
+
+    function escapeHtml(value) {
+      if (value === null || value === undefined) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function setHealthStatus(health) {
+      const statusEl = document.getElementById('healthStatus');
+      const versionEl = document.getElementById('healthVersion');
+      const timeEl = document.getElementById('healthTimestamp');
+
+      if (health && health.ok) {
+        statusEl.textContent = 'Online';
+        statusEl.className = 'pill status-available';
+        versionEl.textContent = health.version || '—';
+        timeEl.textContent = health.timestamp_utc || '—';
+      } else {
+        statusEl.textContent = 'Offline';
+        statusEl.className = 'pill status-lost';
+      }
+    }
+
+    function normalizeStatusClass(status) {
+      const value = String(status || '').toLowerCase();
+      if (value === 'available') return 'status-available';
+      if (value === 'checked out') return 'status-checked-out';
+      if (value === 'maintenance') return 'status-maintenance';
+      if (value === 'lost') return 'status-lost';
+      if (value === 'retired') return 'status-retired';
+      return 'status-unknown';
+    }
+
+    function renderSelectedItem(item) {
+      selectedItem = item;
+
+      const empty = document.getElementById('selectedItemEmpty');
+      const view = document.getElementById('selectedItemView');
+
+      if (!item) {
+        empty.style.display = 'block';
+        view.style.display = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      view.style.display = 'block';
+
+      document.getElementById('itemName').textContent = item.item_name || 'Unnamed Item';
+      document.getElementById('itemDescription').textContent = item.description || 'No description entered.';
+
+      const statusBadge = document.getElementById('itemStatusBadge');
+      statusBadge.textContent = item.status || 'Unknown';
+      statusBadge.className = `pill ${normalizeStatusClass(item.status)}`;
+
+      document.getElementById('detailEquipmentId').textContent = item.equipment_id || '—';
+      document.getElementById('detailAssetTag').textContent = item.asset_tag || '—';
+      document.getElementById('detailCategory').textContent = item.category || '—';
+      document.getElementById('detailBrand').textContent = item.brand || '—';
+      document.getElementById('detailModel').textContent = item.model || '—';
+      document.getElementById('detailSerial').textContent = item.serial_number || '—';
+      document.getElementById('detailHolder').textContent = item.current_holder || '—';
+      document.getElementById('detailLocation').textContent = item.location || '—';
+      document.getElementById('detailCondition').textContent = item.condition || '—';
+      document.getElementById('itemNotes').textContent = item.notes || '—';
+      document.getElementById('itemQrUrl').textContent = item.qr_url || '—';
+      document.getElementById('itemHolderText').textContent = item.current_holder || '—';
+
+      document.getElementById('checkoutCondition').value = item.condition || 'Good';
+      document.getElementById('checkinCondition').value = item.condition || 'Good';
+
+      const canCheckOut = item.status === 'Available';
+      const canCheckIn = item.status === 'Checked Out';
+
+      document.getElementById('checkoutUnavailable').style.display = canCheckOut ? 'none' : 'block';
+      document.getElementById('checkoutFormWrap').style.display = canCheckOut ? 'block' : 'none';
+      document.getElementById('checkinUnavailable').style.display = canCheckIn ? 'none' : 'block';
+      document.getElementById('checkinFormWrap').style.display = canCheckIn ? 'block' : 'none';
+
+      const defaultTab = canCheckOut ? 'checkoutPanel' : canCheckIn ? 'checkinPanel' : 'notesPanel';
+      activateTab(defaultTab);
+    }
+
+    function renderInventory(items) {
+      inventoryItems = items || [];
+      document.getElementById('inventoryCount').textContent = inventoryItems.length;
+
+      const grid = document.getElementById('inventoryGrid');
+      if (inventoryItems.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No inventory loaded yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = inventoryItems.map(item => `
+        <div class="item-card" data-equipment-id="${escapeHtml(item.equipment_id || '')}">
+          <div class="item-card-top">
+            <div>
+              <div class="item-title">${escapeHtml(item.item_name || 'Unnamed Item')}</div>
+              <div class="small mono" style="margin-top:4px;">${escapeHtml(item.equipment_id || '—')}</div>
+            </div>
+            <div class="pill ${normalizeStatusClass(item.status)}">${escapeHtml(item.status || 'Unknown')}</div>
+          </div>
+          <div class="small">${escapeHtml(item.description || 'No description entered.')}</div>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const equipmentId = card.getAttribute('data-equipment-id');
+          document.getElementById('equipmentIdInput').value = equipmentId || '';
+          loadItem(equipmentId);
+        });
+      });
+    }
+
+    async function runHealthCheck() {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PASTE_YOUR')) {
+        showMessage('Add your deployed Google Apps Script URL into APPS_SCRIPT_URL before testing this page.', 'error');
+        return;
+      }
+
+      try {
+        const data = await apiGet('health');
+        setHealthStatus(data);
+      } catch (error) {
+        setHealthStatus(null);
+        showMessage(error.message || 'Health check failed.', 'error');
+      }
+    }
+
+    async function loadInventory() {
+      try {
+        const data = await apiGet('listInventory');
+        if (!data.ok) throw new Error(data.error || 'Failed to load inventory.');
+        renderInventory(data.items || []);
+      } catch (error) {
+        showMessage(error.message || 'Failed to load inventory.', 'error');
+      }
+    }
+
+    async function loadItem(equipmentId) {
+      if (!equipmentId) return;
+      showMessage('');
+
+      try {
+        const data = await apiGet('getItem', { equipment_id: equipmentId });
+        if (!data.ok) throw new Error(data.error || 'Failed to load item.');
+        renderSelectedItem(data.item);
+      } catch (error) {
+        renderSelectedItem(null);
+        showMessage(error.message || 'Failed to load item.', 'error');
+      }
+    }
+
+    async function handleCheckOut() {
+      if (!selectedItem || !selectedItem.equipment_id) return;
+
+      const payload = {
+        action: 'checkOut',
+        equipment_id: selectedItem.equipment_id,
+        user_id: document.getElementById('checkoutUserId').value.trim(),
+        approved_by: document.getElementById('checkoutApprovedBy').value.trim(),
+        project_name: document.getElementById('checkoutProjectName').value.trim(),
+        due_date: document.getElementById('checkoutDueDate').value,
+        location: document.getElementById('checkoutLocation').value.trim(),
+        condition: document.getElementById('checkoutCondition').value.trim(),
+        notes: document.getElementById('checkoutNotes').value.trim()
+      };
+
+      try {
+        const btn = document.getElementById('checkoutBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        const data = await apiPost(payload);
+        if (!data.ok) throw new Error(data.error || 'Checkout failed.');
+
+        showMessage(data.message || 'Checked out successfully.', 'success');
+        await loadItem(selectedItem.equipment_id);
+        await loadInventory();
+      } catch (error) {
+        showMessage(error.message || 'Checkout failed.', 'error');
+      } finally {
+        const btn = document.getElementById('checkoutBtn');
+        btn.disabled = false;
+        btn.textContent = 'Check Out Item';
+      }
+    }
+
+    async function handleCheckIn() {
+      if (!selectedItem || !selectedItem.equipment_id) return;
+
+      const payload = {
+        action: 'checkIn',
+        equipment_id: selectedItem.equipment_id,
+        user_id: document.getElementById('checkinUserId').value.trim(),
+        approved_by: document.getElementById('checkinApprovedBy').value.trim(),
+        location: document.getElementById('checkinLocation').value.trim(),
+        condition: document.getElementById('checkinCondition').value.trim(),
+        notes: document.getElementById('checkinNotes').value.trim()
+      };
+
+      try {
+        const btn = document.getElementById('checkinBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        const data = await apiPost(payload);
+        if (!data.ok) throw new Error(data.error || 'Check-in failed.');
+
+        showMessage(data.message || 'Checked in successfully.', 'success');
+        await loadItem(selectedItem.equipment_id);
+        await loadInventory();
+      } catch (error) {
+        showMessage(error.message || 'Check-in failed.', 'error');
+      } finally {
+        const btn = document.getElementById('checkinBtn');
+        btn.disabled = false;
+        btn.textContent = 'Check In Item';
+      }
+    }
+
+    function activateTab(panelId) {
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tab') === panelId);
+      });
+
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === panelId);
+      });
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activateTab(btn.getAttribute('data-tab'));
+        });
+      });
+    }
+
+    function setupEvents() {
+      document.getElementById('searchForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const equipmentId = document.getElementById('equipmentIdInput').value.trim();
+        loadItem(equipmentId);
+      });
+
+      document.getElementById('checkoutBtn').addEventListener('click', handleCheckOut);
+      document.getElementById('checkinBtn').addEventListener('click', handleCheckIn);
+      document.getElementById('refreshInventoryBtn').addEventListener('click', loadInventory);
+    }
+
+    async function init() {
+      setupTabs();
+      setupEvents();
+      await runHealthCheck();
+      await loadInventory();
+
+      const equipmentIdFromUrl = getEquipmentIdFromUrl();
+      if (equipmentIdFromUrl) {
+        document.getElementById('equipmentIdInput').value = equipmentIdFromUrl;
+        await loadItem(equipmentIdFromUrl);
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
